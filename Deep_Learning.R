@@ -15,6 +15,18 @@ table(df_test$Sentiment)
 
 #PLOT IT GANG 
 
+samples <- train[,-1]
+samples <- samples[,-1]
+
+tokenizer <- text_tokenizer(num_words = 1000) %>% #text_tokenizer includes a set number of words           
+  fit_text_tokenizer(samples) #feed it to fit_text_tokenizer which converts the text to tokens
+
+tokenizer
+# internal class, not interpretable by itself
+# it has a keras internal structure representing the word index
+
+sequences <- texts_to_sequences(tokenizer, samples)                 
+
 
 #Define a simple NN that has one embedding layer, one dense hidden layer and one output layer. Use appropriate parameters and settings for the network, consistent with the size and dimensionality of the data. Choose proper loss and performance metrics.
 
