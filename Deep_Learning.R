@@ -143,7 +143,7 @@ model_rnn <- keras_model_sequential() %>%
 
 model_rnn %>% compile(
   optimizer = "rmsprop",
-  loss = "binary_crossentropy",
+  loss = "categorical_crossentropy",
   metrics = c("categorical_accuracy", "Precision", "Recall")
 )
 
@@ -167,7 +167,7 @@ model_rnn_2 <- keras_model_sequential() %>%
 
 model_rnn_2 %>% compile(
   optimizer = "rmsprop",
-  loss = "binary_crossentropy",
+  loss = "categorical_crossentropy",
   metrics = c("categorical_accuracy", "Precision", "Recall")
 )
 
@@ -181,9 +181,73 @@ history_rnn_2 <- model_rnn_2 %>% fit(
 rnn_results_2 <- model_rnn_2 %>% evaluate(x_test, y_test)
 rnn_results_2
 
+# LSTM Model with Dropout
+model_lstm <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_lstm(units = 16) %>%
+  layer_dense(units = 5, activation = "softmax")
 
+model_lstm %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+history_lstm <- model_lstm %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
 
 #Replace the simple RNN with a LSTM model, using also dropout. Comment on any improvement in the performance.
+model_rnn_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 16, return_sequences = TRUE, 
+                   dropout = 0.1, recurrent_dropout = 0.1) %>%
+  layer_simple_rnn(units = 16, 
+                   dropout = 0.1, recurrent_dropout = 0.1) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+history_rnn_final <- model_rnn_final %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+rnn_results_final <- model_rnn_final %>% evaluate(x_test, y_test)
+rnn_results_final
+
+# LSTM Model with Dropout
+model_lstm_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_lstm(units = 16, dropout = 0.2, recurrent_dropout = 0.2) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_lstm_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+history_lstm_final <- model_lstm_final %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+lstm_final_results <- model_lstm_final %>% evaluate(x_test, y_test)
+lstm_final_results
+
+#TRY LSTM RESULTS WITHOUT DROPOUT
 
 
 #Finally, evaluate your best-performing models one from each type (FFNN, RNN, LSTM) using the test data and labels.
