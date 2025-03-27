@@ -41,14 +41,13 @@ tokenizer <- text_tokenizer(num_words = max_words) %>%
   fit_text_tokenizer(df_train$OriginalTweet)
 
 x_train <- texts_to_sequences(tokenizer, df_train$OriginalTweet) %>% pad_sequences(maxlen = maxlen)
-y_train <- as.array(df_train$Sentiment)
 
 x_test <- texts_to_sequences(tokenizer, df_test$OriginalTweet) %>% pad_sequences(maxlen = maxlen)
-y_test <- as.array(df_test$Sentiment)
 
-
-
-
+# shuffle the training data 
+I <- sample.int(nrow(x_train))
+x_train <- x_train[I,]
+y_train <- y_train[I,]
 
 #Define a simple NN that has one embedding layer, one dense hidden layer and one output layer. Use appropriate parameters and settings for the network, consistent with the size and dimensionality of the data. Choose proper loss and performance metrics.
 
