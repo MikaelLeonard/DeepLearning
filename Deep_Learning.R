@@ -45,6 +45,7 @@ x_train <- texts_to_sequences(tokenizer, df_train$OriginalTweet) %>% pad_sequenc
 x_test <- texts_to_sequences(tokenizer, df_test$OriginalTweet) %>% pad_sequences(maxlen = maxlen)
 
 # shuffle the training data 
+set.seed(1568)
 I <- sample.int(nrow(x_train))
 x_train <- x_train[I,]
 y_train <- y_train[I,]
@@ -104,6 +105,8 @@ history_fnn <- model_fnn %>% fit(
   validation_split = 0.2
 )
 
+#Compile and train the network, using a reasonable batch size, and using 20% of the data for validation. Make an optimal choice for the number of epochs using the validation performance. Record and report the results.
+
 model_fnn_final <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
   layer_flatten() %>%
@@ -128,18 +131,56 @@ history_fnn_final <- model_fnn_final %>% fit(
   validation_split = 0.2
 )
 
-
-
-
-
-
-#Compile and train the network, using a reasonable batch size, and using 20% of the data for validation. Make an optimal choice for the number of epochs using the validation performance. Record and report the results.
-
+final_fnn_results <- model_fnn_final %>% evaluate(x_test, y_test)
+final_fnn_results
 
 #Replace the previous network, with a RNN with one recurrent layer, keeping the embedding layer. Use reasonable values for any remaining hyperparameters. Record and compare the results.
+# RNN Model
+model_rnn <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 16) %>%
+  layer_dense(units = 5, activation = "softmax")
 
+model_rnn %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+history_rnn <- model_rnn %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+rnn_results <- model_rnn %>% evaluate(x_test, y_test)
+rnn_results
 
 #Now add a second recurrent layer, and observe and report and improvement in the model. Select a “best RNN model” based on the validation performance.
+
+model_rnn_2 <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 16, return_sequences = TRUE) %>%
+  layer_simple_rnn(units = 16) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_2 %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+history_rnn_2 <- model_rnn_2 %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+rnn_results_2 <- model_rnn_2 %>% evaluate(x_test, y_test)
+rnn_results_2
+
 
 
 #Replace the simple RNN with a LSTM model, using also dropout. Comment on any improvement in the performance.
