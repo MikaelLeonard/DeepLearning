@@ -51,6 +51,87 @@ y_train <- y_train[I,]
 
 #Define a simple NN that has one embedding layer, one dense hidden layer and one output layer. Use appropriate parameters and settings for the network, consistent with the size and dimensionality of the data. Choose proper loss and performance metrics.
 
+model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8,  # the new space dimension      
+                  input_length = maxlen) %>%
+  layer_flatten() %>%   
+  layer_dense(units = 32, activation = "relu")  %>%   
+  layer_dense(units = 5, activation = "softmax")    
+
+# # of weights of the embedding layer = 10,000 x 8 = 80K
+# Output shape = (50,8), since 50 is the length of the word sequence
+
+model
+
+
+model %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+#train the doel with the data , 80% train, 20% validation 
+#use embedding from the data 
+#chose the max len to be so small - computation is not high but the accuracy is mediocre 
+history <- model %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+model_fnn <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_fnn %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+#train the doel with the data , 80% train, 20% validation 
+#use embedding from the data 
+#chose the max len to be so small - computation is not high but the accuracy is mediocre 
+history_fnn <- model_fnn %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+model_fnn_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_fnn_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("categorical_accuracy", "Precision", "Recall")
+)
+
+#train the doel with the data , 80% train, 20% validation 
+#use embedding from the data 
+#chose the max len to be so small - computation is not high but the accuracy is mediocre 
+history_fnn_final <- model_fnn_final %>% fit(
+  x_train, y_train,
+  epochs = 8,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+
+
+
+
 
 #Compile and train the network, using a reasonable batch size, and using 20% of the data for validation. Make an optimal choice for the number of epochs using the validation performance. Record and report the results.
 
