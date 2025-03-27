@@ -3,6 +3,17 @@ library(ggplot2)
 library(tidyverse)
 
 #Preprocess the text data and labels, using steps similar to the ones followed in the examples in tutorials 9-10. Present descriptive statistics and characteristics of the data and use reasonable values for the parameters num_words and maxlen.
+train <- read.csv("Corona_NLP_train.csv")
+test <- read.csv("Corona_NLP_test.csv")
+
+#Keep only necessary columns
+df_train <- train %>% select(OriginalTweet, Sentiment)
+df_test <- test %>% select(OriginalTweet, Sentiment)
+
+#look at the distribution of the Sentiment
+table(df_test$Sentiment)
+
+#PLOT IT GANG 
 
 
 #Define a simple NN that has one embedding layer, one dense hidden layer and one output layer. Use appropriate parameters and settings for the network, consistent with the size and dimensionality of the data. Choose proper loss and performance metrics.
