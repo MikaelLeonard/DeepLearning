@@ -1,10 +1,12 @@
 library(keras)
 library(ggplot2)
 library(tidyverse)
+library(stringr)  
+
 
 #Preprocess the text data and labels, using steps similar to the ones followed in the examples in tutorials 9-10. Present descriptive statistics and characteristics of the data and use reasonable values for the parameters num_words and maxlen.
-train <- read.csv("Corona_NLP_train.csv")
-test <- read.csv("Corona_NLP_test.csv")
+train <- read.csv("Corona_NLP_train.csv", encoding='latin1')
+test <- read.csv("Corona_NLP_test.csv", encoding='latin1')
 
 #Keep only necessary columns
 df_train <- train %>% select(OriginalTweet, Sentiment)
@@ -15,10 +17,11 @@ table(df_test$Sentiment)
 
 #PLOT IT GANG 
 
-samples <- train[,-1]
-samples <- samples[,-1]
+samples <- as.data.frame(train$OriginalTweet)
+samples = rgx.Replace(samples, "");
+#samples <- as.character(samples)
 
-tokenizer <- text_tokenizer(num_words = 1000) %>% #text_tokenizer includes a set number of words           
+tokenizer <- text_tokenizer(num_words = 100000) %>% #text_tokenizer includes a set number of words           
   fit_text_tokenizer(samples) #feed it to fit_text_tokenizer which converts the text to tokens
 
 tokenizer
