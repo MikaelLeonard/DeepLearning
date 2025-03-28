@@ -11,7 +11,6 @@ df_train <- read.csv("Corona_NLP_train.csv", encoding = "latin1") %>%
 df_test <- read.csv("Corona_NLP_test.csv", encoding = "latin1") %>% 
   select(OriginalTweet, Sentiment)
 
-
 #look at the distribution of the Sentiment
 table(df_test$Sentiment, useNA = "ifany")
 table(df_train$Sentiment, useNA = "ifany")
@@ -31,10 +30,13 @@ df_test$Sentiment <- factor(df_test$Sentiment, levels = sentiment_levels)
 y_train <- to_categorical(as.integer(df_train$Sentiment) - 1, num_classes = 5)
 y_test  <- to_categorical(as.integer(df_test$Sentiment) - 1, num_classes = 5)
 
+# Sentence Length distribution
+Sentence_Length <- lengths(strsplit(df_train$OriginalTweet," "))
+hist(Sentence_Length, breaks=100)
 
 # Set parameters for tokenization and padding/one-hot encoding
 max_words <- 10000  # vocabulary size
-maxlen    <- 50    # maximum tweet length (in words)
+maxlen    <- quantile(Sentence_Length,0.95)    # maximum tweet length (in words), equals 48 words
 
 # Create tokenizer
 tokenizer <- text_tokenizer(num_words = max_words) %>%
@@ -56,7 +58,7 @@ model <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8,  # the new space dimension      
                   input_length = maxlen) %>%
   layer_flatten() %>%   
-  layer_dense(units = 32, activation = "relu")  %>%   
+  layer_dense(units = 64, activation = "relu")  %>%   
   layer_dense(units = 5, activation = "softmax")    
 
 # # of weights of the embedding layer = 10,000 x 8 = 80K
@@ -68,7 +70,7 @@ model
 model %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
+  metrics = c("accuracy")
 )
 
 #train the doel with the data , 80% train, 20% validation 
@@ -81,6 +83,8 @@ history <- model %>% fit(
   validation_split = 0.2
 )
 
+plot(history)
+
 model_fnn <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
   layer_flatten() %>%
@@ -92,10 +96,10 @@ model_fnn <- keras_model_sequential() %>%
 model_fnn %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
+  metrics = c("accuracy")
 )
 
-#train the doel with the data , 80% train, 20% validation 
+#train the model with the data , 80% train, 20% validation 
 #use embedding from the data 
 #chose the max len to be so small - computation is not high but the accuracy is mediocre 
 history_fnn <- model_fnn %>% fit(
@@ -104,6 +108,8 @@ history_fnn <- model_fnn %>% fit(
   batch_size = 32,
   validation_split = 0.2
 )
+
+plot(history_fnn)
 
 #Compile and train the network, using a reasonable batch size, and using 20% of the data for validation. Make an optimal choice for the number of epochs using the validation performance. Record and report the results.
 
@@ -118,18 +124,20 @@ model_fnn_final <- keras_model_sequential() %>%
 model_fnn_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
+  metrics = c("accuracy")
 )
 
-#train the doel with the data , 80% train, 20% validation 
+#train the model with the data , 80% train, 20% validation 
 #use embedding from the data 
-#chose the max len to be so small - computation is not high but the accuracy is mediocre 
+#choose the max len to be so small - computation is not high but the accuracy is mediocre 
 history_fnn_final <- model_fnn_final %>% fit(
   x_train, y_train,
   epochs = 8,
   batch_size = 32,
   validation_split = 0.2
 )
+
+plot(history_fnn_final)
 
 final_fnn_results <- model_fnn_final %>% evaluate(x_test, y_test)
 final_fnn_results
@@ -138,13 +146,15 @@ final_fnn_results
 # RNN Model
 model_rnn <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8) %>%
-  layer_simple_rnn(units = 16) %>%
+  layer_simple_rnn(units = 32) %>%
   layer_dense(units = 5, activation = "softmax")
+
+model_rnn
 
 model_rnn %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
+  metrics = c("accuracy")
 )
 
 history_rnn <- model_rnn %>% fit(
@@ -154,21 +164,25 @@ history_rnn <- model_rnn %>% fit(
   validation_split = 0.2
 )
 
+plot(history_rnn)
+
 rnn_results <- model_rnn %>% evaluate(x_test, y_test)
 rnn_results
 
-#Now add a second recurrent layer, and observe and report and improvement in the model. Select a “best RNN model” based on the validation performance.
+#Now add a second recurrent layer, and observe and report any improvement in the model. Select a “best RNN model” based on the validation performance.
 
 model_rnn_2 <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8) %>%
-  layer_simple_rnn(units = 16, return_sequences = TRUE) %>%
+  layer_simple_rnn(units = 32, return_sequences = TRUE) %>%
   layer_simple_rnn(units = 16) %>%
   layer_dense(units = 5, activation = "softmax")
+
+model_rnn_2
 
 model_rnn_2 %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
+  metrics = c("accuracy")
 )
 
 history_rnn_2 <- model_rnn_2 %>% fit(
@@ -178,32 +192,16 @@ history_rnn_2 <- model_rnn_2 %>% fit(
   validation_split = 0.2
 )
 
+plot(history_rnn_2)
+
 rnn_results_2 <- model_rnn_2 %>% evaluate(x_test, y_test)
 rnn_results_2
 
-# LSTM Model with Dropout
-model_lstm <- keras_model_sequential() %>%
-  layer_embedding(input_dim = max_words, output_dim = 8) %>%
-  layer_lstm(units = 16) %>%
-  layer_dense(units = 5, activation = "softmax")
+# RNN with dropout
 
-model_lstm %>% compile(
-  optimizer = "rmsprop",
-  loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
-)
-
-history_lstm <- model_lstm %>% fit(
-  x_train, y_train,
-  epochs = 10,
-  batch_size = 32,
-  validation_split = 0.2
-)
-
-#Replace the simple RNN with a LSTM model, using also dropout. Comment on any improvement in the performance.
 model_rnn_final <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8) %>%
-  layer_simple_rnn(units = 16, return_sequences = TRUE, 
+  layer_simple_rnn(units = 32, return_sequences = TRUE, 
                    dropout = 0.1, recurrent_dropout = 0.1) %>%
   layer_simple_rnn(units = 16, 
                    dropout = 0.1, recurrent_dropout = 0.1) %>%
@@ -212,18 +210,44 @@ model_rnn_final <- keras_model_sequential() %>%
 model_rnn_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
+  metrics = c("accuracy")
 )
 
 history_rnn_final <- model_rnn_final %>% fit(
   x_train, y_train,
-  epochs = 10,
+  epochs = 15,
   batch_size = 32,
   validation_split = 0.2
 )
 
+plot(history_rnn_final)
+
 rnn_results_final <- model_rnn_final %>% evaluate(x_test, y_test)
 rnn_results_final
+
+#Replace the simple RNN with a LSTM model, using also dropout. Comment on any improvement in the performance.
+
+model_lstm <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_lstm(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_lstm
+
+model_lstm %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("accuracy")
+)
+
+history_lstm <- model_lstm %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_lstm)
 
 # LSTM Model with Dropout
 model_lstm_final <- keras_model_sequential() %>%
@@ -234,15 +258,17 @@ model_lstm_final <- keras_model_sequential() %>%
 model_lstm_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy", "Precision", "Recall")
+  metrics = c("accuracy")
 )
 
 history_lstm_final <- model_lstm_final %>% fit(
   x_train, y_train,
-  epochs = 10,
+  epochs = 20,
   batch_size = 32,
   validation_split = 0.2
 )
+
+plot(history_lstm_final)
 
 lstm_final_results <- model_lstm_final %>% evaluate(x_test, y_test)
 lstm_final_results
