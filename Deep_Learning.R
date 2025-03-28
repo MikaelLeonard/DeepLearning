@@ -1,13 +1,14 @@
 library(keras)
 library(ggplot2)
 library(tidyverse)
+library(RColorBrewer)
 
 # Be better plot it gang
 
 #Preprocess the text data and labels, using steps similar to the ones followed in the examples in tutorials 9-10. Present descriptive statistics and characteristics of the data and use reasonable values for the parameters num_words and maxlen.
 #Keep only necessary columns
 df_train <- read.csv("Corona_NLP_train.csv", encoding = "latin1") %>% 
-  select(OriginalTweet, Sentiment)
+  select(OriginalTweet, Sentiment) #read the csvfile, using the latin1 format to endode characters into one of the 191 recognized encodings of the latin script. This will exclude certain accented characters 
 df_test <- read.csv("Corona_NLP_test.csv", encoding = "latin1") %>% 
   select(OriginalTweet, Sentiment)
 
@@ -23,7 +24,7 @@ print(head(df_train$OriginalTweet))
 sentiment_levels <- c("Extremely Negative", "Negative", "Neutral", "Positive", "Extremely Positive")
 
 # Convert sentiment column to a factor with the levels
-df_train$Sentiment <- factor(df_train$Sentiment, levels = sentiment_levels)
+df_train$Sentiment <- factor(df_train$Sentiment, levels = sentiment_levels) #conversion to a factor will make it useful for subsequent numerical encoding
 df_test$Sentiment <- factor(df_test$Sentiment, levels = sentiment_levels)
 
 # One-hot encode the sentiment labels (subtract 1 since keras expects classes starting at 0)
@@ -31,8 +32,9 @@ y_train <- to_categorical(as.integer(df_train$Sentiment) - 1, num_classes = 5)
 y_test  <- to_categorical(as.integer(df_test$Sentiment) - 1, num_classes = 5)
 
 # Sentence Length distribution
-Sentence_Length <- lengths(strsplit(df_train$OriginalTweet," "))
-hist(Sentence_Length, breaks=100)
+Sentence_Length <- lengths(strsplit(df_train$OriginalTweet," ")) #create a vector of the number of words per sentence
+hist(Sentence_Length, breaks=100) #By analyzing the distribution of sentence-lengths, it is clear that there is not an extremely long tail of data that when included would result in dramatically large sections of padding added to the shorter sentences
+boxplot(Sentence_Length)
 
 # Set parameters for tokenization and padding/one-hot encoding
 max_words <- 10000  # vocabulary size
@@ -272,6 +274,20 @@ plot(history_lstm_final)
 
 lstm_final_results <- model_lstm_final %>% evaluate(x_test, y_test)
 lstm_final_results
+
+preds_lstm_final_results <- predict(model_lstm_final, cbind(x_test, y_test))
+preds.cl <- max.col(preds_lstm_final_results) #grab the column which has the highest value per each row
+
+lstm_final_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(lstm_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(lstm_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+heatmap(lstm_final_Matrix,
+        Rowv=NA,
+        Colv=NA,
+        cexRow=1,
+        cexCol=1,
+        col = brewer.pal(9,"YlGn"))
 
 #TRY LSTM RESULTS WITHOUT DROPOUT
 
