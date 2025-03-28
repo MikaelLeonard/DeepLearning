@@ -2,8 +2,11 @@ library(keras)
 library(ggplot2)
 library(tidyverse)
 library(RColorBrewer)
+library(pheatmap)
 
-# Be better plot it gang
+################################################################################
+#     Data Pre-Processing
+################################################################################
 
 #Preprocess the text data and labels, using steps similar to the ones followed in the examples in tutorials 9-10. Present descriptive statistics and characteristics of the data and use reasonable values for the parameters num_words and maxlen.
 #Keep only necessary columns
@@ -36,6 +39,10 @@ Sentence_Length <- lengths(strsplit(df_train$OriginalTweet," ")) #create a vecto
 hist(Sentence_Length, breaks=100) #By analyzing the distribution of sentence-lengths, it is clear that there is not an extremely long tail of data that when included would result in dramatically large sections of padding added to the shorter sentences
 boxplot(Sentence_Length)
 
+################################################################################
+#     Tokenization & Data Shuffling
+################################################################################
+
 # Set parameters for tokenization and padding/one-hot encoding
 max_words <- 10000  # vocabulary size
 maxlen    <- quantile(Sentence_Length,0.95)    # maximum tweet length (in words), equals 48 words
@@ -53,6 +60,10 @@ set.seed(1568)
 I <- sample.int(nrow(x_train))
 x_train <- x_train[I,]
 y_train <- y_train[I,]
+
+################################################################################
+#     Simple FF NN defining, training, & evaluation
+################################################################################
 
 #Define a simple NN that has one embedding layer, one dense hidden layer and one output layer. Use appropriate parameters and settings for the network, consistent with the size and dimensionality of the data. Choose proper loss and performance metrics.
 
@@ -75,7 +86,7 @@ model %>% compile(
   metrics = c("accuracy")
 )
 
-#train the doel with the data , 80% train, 20% validation 
+#train the model with the data , 80% train, 20% validation 
 #use embedding from the data 
 #chose the max len to be so small - computation is not high but the accuracy is mediocre 
 history <- model %>% fit(
@@ -86,6 +97,26 @@ history <- model %>% fit(
 )
 
 plot(history)
+
+preds <- predict(model, cbind(x_test, y_test))
+preds.cl <- max.col(preds) #grab the column which has the highest value per each row
+
+Simple_fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(Simple_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(Simple_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(Simple_fnn_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
+################################################################################
+#     FF NN with Regularization defining, training, & evaluation
+################################################################################
 
 model_fnn <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
@@ -101,6 +132,8 @@ model_fnn %>% compile(
   metrics = c("accuracy")
 )
 
+#Compile and train the network, using a reasonable batch size, and using 20% of the data for validation. Make an optimal choice for the number of epochs using the validation performance. Record and report the results.
+
 #train the model with the data , 80% train, 20% validation 
 #use embedding from the data 
 #chose the max len to be so small - computation is not high but the accuracy is mediocre 
@@ -113,7 +146,26 @@ history_fnn <- model_fnn %>% fit(
 
 plot(history_fnn)
 
-#Compile and train the network, using a reasonable batch size, and using 20% of the data for validation. Make an optimal choice for the number of epochs using the validation performance. Record and report the results.
+preds_fnn <- predict(model_fnn, cbind(x_test, y_test))
+preds.cl <- max.col(preds_fnn) #grab the column which has the highest value per each row
+
+fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(fnn_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
+
+################################################################################
+#     Final FF NN with Regularization defining, training, & evaluation
+################################################################################
 
 model_fnn_final <- keras_model_sequential() %>%
   layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
@@ -144,6 +196,26 @@ plot(history_fnn_final)
 final_fnn_results <- model_fnn_final %>% evaluate(x_test, y_test)
 final_fnn_results
 
+preds_final_fnn <- predict(model_fnn_final, cbind(x_test, y_test))
+preds.cl <- max.col(preds_final_fnn) #grab the column which has the highest value per each row
+
+final_fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(final_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(final_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(final_fnn_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
+################################################################################
+#     RNN defining, training, & evaluation
+################################################################################
+
 #Replace the previous network, with a RNN with one recurrent layer, keeping the embedding layer. Use reasonable values for any remaining hyperparameters. Record and compare the results.
 # RNN Model
 model_rnn <- keras_model_sequential() %>%
@@ -170,6 +242,26 @@ plot(history_rnn)
 
 rnn_results <- model_rnn %>% evaluate(x_test, y_test)
 rnn_results
+
+preds_rnn <- predict(model_rnn, cbind(x_test, y_test))
+preds.cl <- max.col(preds_rnn) #grab the column which has the highest value per each row
+
+rnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(rnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(rnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(rnn_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
+################################################################################
+#     Complex RNN defining, training, & evaluation
+################################################################################
 
 #Now add a second recurrent layer, and observe and report any improvement in the model. Select a “best RNN model” based on the validation performance.
 
@@ -199,6 +291,26 @@ plot(history_rnn_2)
 rnn_results_2 <- model_rnn_2 %>% evaluate(x_test, y_test)
 rnn_results_2
 
+preds_rnn_2 <- predict(model_rnn_2, cbind(x_test, y_test))
+preds.cl <- max.col(preds_rnn_2) #grab the column which has the highest value per each row
+
+rnn_2_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(rnn_2_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(rnn_2_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(rnn_2_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
+################################################################################
+#     Complex RNN with Regularization defining, training, & evaluation
+################################################################################
+
 # RNN with dropout
 
 model_rnn_final <- keras_model_sequential() %>%
@@ -226,6 +338,26 @@ plot(history_rnn_final)
 
 rnn_results_final <- model_rnn_final %>% evaluate(x_test, y_test)
 rnn_results_final
+
+preds_rnn_final_results <- predict(model_rnn_final, cbind(x_test, y_test))
+preds.cl <- max.col(preds_rnn_final_results) #grab the column which has the highest value per each row
+
+rnn_final_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(rnn_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(rnn_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(rnn_final_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
+################################################################################
+#     LSTM defining, training, & evaluation
+################################################################################
 
 #Replace the simple RNN with a LSTM model, using also dropout. Comment on any improvement in the performance.
 
@@ -282,8 +414,6 @@ lstm_final_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
 colnames(lstm_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
 rownames(lstm_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
 
-install.packages('pheatmap') # if not installed already
-library(pheatmap)
 pheatmap(lstm_final_Matrix,
          display_numbers = T,
          treeheight_row=0,
