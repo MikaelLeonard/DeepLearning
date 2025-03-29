@@ -4,6 +4,7 @@ library(tidyverse)
 library(RColorBrewer)
 library(pheatmap)
 
+
 ################################################################################
 #     Data Pre-Processing
 ################################################################################
@@ -39,6 +40,7 @@ Sentence_Length <- lengths(strsplit(df_train$OriginalTweet," ")) #create a vecto
 hist(Sentence_Length, breaks=100) #By analyzing the distribution of sentence-lengths, it is clear that there is not an extremely long tail of data that when included would result in dramatically large sections of padding added to the shorter sentences
 boxplot(Sentence_Length)
 
+
 ################################################################################
 #     Tokenization & Data Shuffling
 ################################################################################
@@ -60,6 +62,7 @@ set.seed(1568)
 I <- sample.int(nrow(x_train))
 x_train <- x_train[I,]
 y_train <- y_train[I,]
+
 
 ################################################################################
 #     Simple FF NN defining, training, & evaluation
@@ -98,6 +101,9 @@ history <- model %>% fit(
 
 plot(history)
 
+simple_fnn_results <- model %>% evaluate(x_test, y_test)
+simple_fnn_results
+
 preds <- predict(model, cbind(x_test, y_test))
 preds.cl <- max.col(preds) #grab the column which has the highest value per each row
 
@@ -113,6 +119,7 @@ pheatmap(Simple_fnn_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red')
+
 
 ################################################################################
 #     FF NN with Regularization defining, training, & evaluation
@@ -145,6 +152,9 @@ history_fnn <- model_fnn %>% fit(
 )
 
 plot(history_fnn)
+
+fnn_results <- model %>% evaluate(x_test, y_test)
+fnn_results
 
 preds_fnn <- predict(model_fnn, cbind(x_test, y_test))
 preds.cl <- max.col(preds_fnn) #grab the column which has the highest value per each row
@@ -212,6 +222,7 @@ pheatmap(final_fnn_Matrix,
          color = brewer.pal(9,"YlGn"),
          number_color='red')
 
+
 ################################################################################
 #     RNN defining, training, & evaluation
 ################################################################################
@@ -258,6 +269,53 @@ pheatmap(rnn_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red')
+
+################################################################################
+#     Fewer Epoch RNN defining, training, & evaluation
+################################################################################
+
+# RNN Model
+model_rnn_Cutoff <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_Cutoff
+
+model_rnn_Cutoff %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("accuracy")
+)
+
+history_rnn_cutoff <- model_rnn_Cutoff %>% fit(
+  x_train, y_train,
+  epochs = 7,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn_cutoff)
+
+rnn_cutoff_results <- model_rnn_Cutoff %>% evaluate(x_test, y_test)
+rnn_cutoff_results
+
+preds_rnn_cutoff <- predict(model_rnn_Cutoff, cbind(x_test, y_test))
+preds.cl <- max.col(preds_rnn_cutoff) #grab the column which has the highest value per each row
+
+rnn_cutoff_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(rnn_cutoff_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(rnn_cutoff_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(rnn_cutoff_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
 
 ################################################################################
 #     Complex RNN defining, training, & evaluation
@@ -307,6 +365,7 @@ pheatmap(rnn_2_Matrix,
          color = brewer.pal(9,"YlGn"),
          number_color='red')
 
+
 ################################################################################
 #     Complex RNN with Regularization defining, training, & evaluation
 ################################################################################
@@ -329,7 +388,7 @@ model_rnn_final %>% compile(
 
 history_rnn_final <- model_rnn_final %>% fit(
   x_train, y_train,
-  epochs = 15,
+  epochs = 20,
   batch_size = 32,
   validation_split = 0.2
 )
@@ -354,6 +413,7 @@ pheatmap(rnn_final_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red')
+
 
 ################################################################################
 #     LSTM defining, training, & evaluation
@@ -382,6 +442,30 @@ history_lstm <- model_lstm %>% fit(
 )
 
 plot(history_lstm)
+
+lstm_results <- model_lstm %>% evaluate(x_test, y_test)
+lstm_results
+
+preds_lstm_results <- predict(model_lstm, cbind(x_test, y_test))
+preds.cl <- max.col(preds_lstm_results) #grab the column which has the highest value per each row
+
+lstm_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
+colnames(lstm_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+rownames(lstm_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+
+pheatmap(lstm_Matrix,
+         display_numbers = T,
+         treeheight_row=0,
+         treeheight_col=0,
+         cluster_rows=F,
+         cluster_cols=F,
+         color = brewer.pal(9,"YlGn"),
+         number_color='red')
+
+
+################################################################################
+#     LSTM with Regularization defining, training, & evaluation
+################################################################################
 
 # LSTM Model with Dropout
 model_lstm_final <- keras_model_sequential() %>%
@@ -423,9 +507,30 @@ pheatmap(lstm_final_Matrix,
          color = brewer.pal(9,"YlGn"),
          number_color='red')
 
-#TRY LSTM RESULTS WITHOUT DROPOUT
 
+################################################################################
+#     Overall Evaluation
+################################################################################
 
 #Finally, evaluate your best-performing models one from each type (FFNN, RNN, LSTM) using the test data and labels.
+
+Model_Types = c("Simple FFNN",
+                "FFNN with Dropout",
+                "Final FFNN with Dropout",
+                "RNN",
+                "RNN with cutoff",
+                "Complex RNN",
+                "Complex RNN with Dropout",
+                "LSTM",
+                "LSTM with Dropout")
+
+simple_fnn_results
+fnn_results
+final_fnn_results
+rnn_results
+rnn_results_2
+rnn_results_final
+lstm_results
+lstm_final_results
 
 #Include a section of lessons learned, conclusions, limitations and potential next steps, reflecting on your analysis.
