@@ -104,23 +104,6 @@ plot(history)
 simple_fnn_results <- model %>% evaluate(x_test, y_test)
 simple_fnn_results
 
-preds <- predict(model, cbind(x_test, y_test))
-preds.cl <- max.col(preds) #grab the column which has the highest value per each row
-
-Simple_fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(Simple_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(Simple_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-
-pheatmap(Simple_fnn_Matrix,
-         display_numbers = T,
-         treeheight_row=0,
-         treeheight_col=0,
-         cluster_rows=F,
-         cluster_cols=F,
-         color = brewer.pal(9,"YlGn"),
-         number_color='red')
-
-
 ################################################################################
 #     FF NN with Regularization defining, training, & evaluation
 ################################################################################
@@ -234,7 +217,8 @@ pheatmap(rnn_Matrix,
          cluster_rows=F,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
-         number_color='red')
+         number_color='red',
+         main="Recurrent NN")
 
 ################################################################################
 #     Fewer Epoch RNN defining, training, & evaluation
@@ -280,7 +264,8 @@ pheatmap(rnn_cutoff_Matrix,
          cluster_rows=F,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
-         number_color='red')
+         number_color='red',
+         main="Optimized Recurrent NN")
 
 
 ################################################################################
@@ -329,7 +314,8 @@ pheatmap(rnn_2_Matrix,
          cluster_rows=F,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
-         number_color='red')
+         number_color='red',
+         main="Complex Recurrent NN")
 
 
 ################################################################################
@@ -378,7 +364,8 @@ pheatmap(rnn_final_Matrix,
          cluster_rows=F,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
-         number_color='red')
+         number_color='red',
+         main="Regularized Complex Recurrent NN")
 
 
 ################################################################################
@@ -426,7 +413,8 @@ pheatmap(lstm_Matrix,
          cluster_rows=F,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
-         number_color='red')
+         number_color='red',
+         main="LSTM NN")
 
 
 ################################################################################
@@ -471,7 +459,8 @@ pheatmap(lstm_final_Matrix,
          cluster_rows=F,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
-         number_color='red')
+         number_color='red',
+         main="Regularized LSTM NN")
 
 
 ################################################################################
