@@ -37,8 +37,8 @@ y_test  <- to_categorical(as.integer(df_test$Sentiment) - 1, num_classes = 5)
 
 # Sentence Length distribution
 Sentence_Length <- lengths(strsplit(df_train$OriginalTweet," ")) #create a vector of the number of words per sentence
-hist(Sentence_Length, breaks=100) #By analyzing the distribution of sentence-lengths, it is clear that there is not an extremely long tail of data that when included would result in dramatically large sections of padding added to the shorter sentences
-boxplot(Sentence_Length)
+hist(Sentence_Length, breaks=100,, main="Sentence Length", ylab="Number of Words") #By analyzing the distribution of sentence-lengths, it is clear that there is not an extremely long tail of data that when included would result in dramatically large sections of padding added to the shorter sentences
+boxplot(Sentence_Length, main="Sentence Length", ylab="Number of Words")
 
 
 ################################################################################
@@ -528,6 +528,7 @@ simple_fnn_results
 fnn_results
 final_fnn_results
 rnn_results
+rnn_cutoff_results
 rnn_results_2
 rnn_results_final
 lstm_results
