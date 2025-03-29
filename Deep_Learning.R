@@ -156,23 +156,6 @@ plot(history_fnn)
 fnn_results <- model %>% evaluate(x_test, y_test)
 fnn_results
 
-preds_fnn <- predict(model_fnn, cbind(x_test, y_test))
-preds.cl <- max.col(preds_fnn) #grab the column which has the highest value per each row
-
-fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-
-pheatmap(fnn_Matrix,
-         display_numbers = T,
-         treeheight_row=0,
-         treeheight_col=0,
-         cluster_rows=F,
-         cluster_cols=F,
-         color = brewer.pal(9,"YlGn"),
-         number_color='red')
-
-
 ################################################################################
 #     Final FF NN with Regularization defining, training, & evaluation
 ################################################################################
@@ -205,23 +188,6 @@ plot(history_fnn_final)
 
 final_fnn_results <- model_fnn_final %>% evaluate(x_test, y_test)
 final_fnn_results
-
-preds_final_fnn <- predict(model_fnn_final, cbind(x_test, y_test))
-preds.cl <- max.col(preds_final_fnn) #grab the column which has the highest value per each row
-
-final_fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(final_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(final_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-
-pheatmap(final_fnn_Matrix,
-         display_numbers = T,
-         treeheight_row=0,
-         treeheight_col=0,
-         cluster_rows=F,
-         cluster_cols=F,
-         color = brewer.pal(9,"YlGn"),
-         number_color='red')
-
 
 ################################################################################
 #     RNN defining, training, & evaluation
