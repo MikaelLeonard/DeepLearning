@@ -3,7 +3,7 @@ library(ggplot2)
 library(tidyverse)
 library(RColorBrewer)
 library(pheatmap)
-
+library(ggrepel)
 
 ################################################################################
 #     Data Pre-Processing
@@ -86,7 +86,7 @@ model
 model %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy")
 )
 
 #train the model with the data , 80% train, 20% validation 
@@ -119,7 +119,7 @@ model_fnn <- keras_model_sequential() %>%
 model_fnn %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 #Compile and train the network, using a reasonable batch size, and using 20% of the data for validation. Make an optimal choice for the number of epochs using the validation performance. Record and report the results.
@@ -154,7 +154,7 @@ model_fnn_final <- keras_model_sequential() %>%
 model_fnn_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 #train the model with the data , 80% train, 20% validation 
@@ -188,7 +188,7 @@ model_rnn
 model_rnn %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_rnn <- model_rnn %>% fit(
@@ -235,7 +235,7 @@ model_rnn_Cutoff
 model_rnn_Cutoff %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_rnn_cutoff <- model_rnn_Cutoff %>% fit(
@@ -285,7 +285,7 @@ model_rnn_2
 model_rnn_2 %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_rnn_2 <- model_rnn_2 %>% fit(
@@ -335,7 +335,7 @@ model_rnn_final <- keras_model_sequential() %>%
 model_rnn_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_rnn_final <- model_rnn_final %>% fit(
@@ -384,7 +384,7 @@ model_lstm
 model_lstm %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy")
 )
 
 history_lstm <- model_lstm %>% fit(
@@ -416,7 +416,6 @@ pheatmap(lstm_Matrix,
          number_color='red',
          main="LSTM NN")
 
-
 ################################################################################
 #     LSTM with Regularization defining, training, & evaluation
 ################################################################################
@@ -430,7 +429,7 @@ model_lstm_final <- keras_model_sequential() %>%
 model_lstm_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("accuracy")
+  metrics = c("categorical_accuracy")
 )
 
 history_lstm_final <- model_lstm_final %>% fit(
@@ -469,24 +468,40 @@ pheatmap(lstm_final_Matrix,
 
 #Finally, evaluate your best-performing models one from each type (FFNN, RNN, LSTM) using the test data and labels.
 
-Model_Types = c("Simple FFNN",
-                "FFNN with Dropout",
-                "Final FFNN with Dropout",
+Model_Types = c("FFNN",
+                "FFNN + Dropout",
+                "Optimized FFNN + Dropout",
+                
                 "RNN",
-                "RNN with cutoff",
+                "Optimized RNN",
                 "Complex RNN",
-                "Complex RNN with Dropout",
+                "Complex RNN + Dropout",
+                
                 "LSTM",
-                "LSTM with Dropout")
+                "LSTM + Dropout")
 
-simple_fnn_results
-fnn_results
-final_fnn_results
-rnn_results
-rnn_cutoff_results
-rnn_results_2
-rnn_results_final
-lstm_results
-lstm_final_results
+Overall_Metrics <- data.frame(cbind(rbind(simple_fnn_results,
+fnn_results,#regularization
+final_fnn_results, #regularization and cutoff/optimization
+
+rnn_results,
+rnn_cutoff_results, #cutoff/optimization
+rnn_results_2, #second layer
+rnn_results_final, #second layer with regularization
+
+lstm_results,
+lstm_final_results),Model_Types)) #regularization
+
+Overall_Metrics$loss <- as.numeric(Overall_Metrics$loss)
+Overall_Metrics$accuracy <- as.numeric(Overall_Metrics$categorical_accuracy)
+
+Overall_Metrics
+
+ggplot(Overall_Metrics, aes(loss,categorical_accuracy)) +
+  geom_point() +
+  geom_text_repel(aes(label = Model_Types)) +
+  xlim(0.4,1.8) +
+  ylim(0.3,0.9) +
+  ggtitle("Overall Model Performances with Test Data")
 
 #Include a section of lessons learned, conclusions, limitations and potential next steps, reflecting on your analysis.
