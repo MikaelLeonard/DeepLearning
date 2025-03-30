@@ -78,7 +78,7 @@ model <- keras_model_sequential() %>%
   layer_dense(units = 5, activation = "softmax")    
 
 # # of weights of the embedding layer = 10,000 x 8 = 80K
-# Output shape = (50,8), since 50 is the length of the word sequence
+# Output shape = (48,8), since 48 is the length of the word sequence
 
 model
 
@@ -86,7 +86,7 @@ model
 model %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 #train the model with the data , 80% train, 20% validation 
@@ -136,7 +136,7 @@ history_fnn <- model_fnn %>% fit(
 
 plot(history_fnn)
 
-fnn_results <- model %>% evaluate(x_test, y_test)
+fnn_results <- model_fnn %>% evaluate(x_test, y_test)
 fnn_results
 
 ################################################################################
