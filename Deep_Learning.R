@@ -548,14 +548,14 @@ Overall_Metrics$categorical_accuracy <- as.numeric(Overall_Metrics$categorical_a
 
 Overall_Metrics
 
-ggplot(Overall_Metrics, aes(loss,categorical_accuracy)) +
+ggplot(Overall_Metrics, aes(loss,categorical_accuracy, colour=Model_Types)) +
   geom_point() +
   geom_text_repel(aes(label = Model_Types)) +
   xlim(0.5,1.6) +
   ylim(0.55,0.775) +
   ggtitle("Overall Model Performances with Test Data") +
   xlab("Loss") +
-  ylab("Categorical Accuracy")
+  ylab("Categorical Accuracy")+ theme(legend.position="none")
 
 #Include a section of lessons learned, conclusions, limitations and potential next steps, reflecting on your analysis.
 
