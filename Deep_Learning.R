@@ -108,8 +108,8 @@ preds_simple_fnn <- predict(model, x_test)
 preds.cl <- max.col(preds_fnn) #grab the column which has the highest value per each row
 
 simple_fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(simple_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(simple_fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(simple_fnn_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(simple_fnn_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(simple_fnn_Matrix,
          display_numbers = T,
@@ -119,7 +119,8 @@ pheatmap(simple_fnn_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Simple FFNN")
+         main="Simple FFNN",
+         angle_col=315)
 
 ################################################################################
 #     FF NN with Regularization defining, training, & evaluation
@@ -160,8 +161,8 @@ preds_fnn <- predict(model_fnn, x_test)
 preds.cl <- max.col(preds_fnn) #grab the column which has the highest value per each row
 
 fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(fnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(fnn_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(fnn_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(fnn_Matrix,
          display_numbers = T,
@@ -171,7 +172,8 @@ pheatmap(fnn_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Regularized FFNN")
+         main="Regularized FFNN",
+         angle_col=315)
 
 ################################################################################
 #     Final FF NN with Regularization defining, training, & evaluation
@@ -210,8 +212,8 @@ preds_fnn_final <- predict(model_fnn_final, x_test)
 preds.cl <- max.col(preds_rnn_2) #grab the column which has the highest value per each row
 
 fnn_final_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(fnn_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(fnn_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(fnn_final_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(fnn_final_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(fnn_final_Matrix,
          display_numbers = T,
@@ -221,7 +223,8 @@ pheatmap(fnn_final_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Regularized Optimized FFNN")
+         main="Regularized Optimized FFNN",
+         angle_col=315)
 
 ################################################################################
 #     RNN defining, training, & evaluation
@@ -258,8 +261,8 @@ preds_rnn <- predict(model_rnn, cbind(x_test, y_test))
 preds.cl <- max.col(preds_rnn) #grab the column which has the highest value per each row
 
 rnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(rnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(rnn_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(rnn_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(rnn_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(rnn_Matrix,
          display_numbers = T,
@@ -269,7 +272,8 @@ pheatmap(rnn_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Recurrent NN")
+         main="Recurrent NN",
+         angle_col=315)
 
 ################################################################################
 #     Fewer Epoch RNN defining, training, & evaluation
@@ -305,8 +309,8 @@ preds_rnn_cutoff <- predict(model_rnn_Cutoff, cbind(x_test, y_test))
 preds.cl <- max.col(preds_rnn_cutoff) #grab the column which has the highest value per each row
 
 rnn_cutoff_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(rnn_cutoff_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(rnn_cutoff_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(rnn_cutoff_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(rnn_cutoff_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(rnn_cutoff_Matrix,
          display_numbers = T,
@@ -316,7 +320,8 @@ pheatmap(rnn_cutoff_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Optimized Recurrent NN")
+         main="Optimized Recurrent NN",
+         angle_col=315)
 
 
 ################################################################################
@@ -355,8 +360,8 @@ preds_rnn_2 <- predict(model_rnn_2, cbind(x_test, y_test))
 preds.cl <- max.col(preds_rnn_2) #grab the column which has the highest value per each row
 
 rnn_2_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(rnn_2_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(rnn_2_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(rnn_2_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(rnn_2_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(rnn_2_Matrix,
          display_numbers = T,
@@ -366,7 +371,8 @@ pheatmap(rnn_2_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Complex Recurrent NN")
+         main="Complex Recurrent NN",
+         angle_col=315)
 
 
 ################################################################################
@@ -405,8 +411,8 @@ preds_rnn_final_results <- predict(model_rnn_final, cbind(x_test, y_test))
 preds.cl <- max.col(preds_rnn_final_results) #grab the column which has the highest value per each row
 
 rnn_final_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(rnn_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(rnn_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(rnn_final_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(rnn_final_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(rnn_final_Matrix,
          display_numbers = T,
@@ -416,7 +422,8 @@ pheatmap(rnn_final_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Regularized Complex Recurrent NN")
+         main="Regularized Complex Recurrent NN",
+         angle_col=315)
 
 
 ################################################################################
@@ -454,8 +461,8 @@ preds_lstm_results <- predict(model_lstm, cbind(x_test, y_test))
 preds.cl <- max.col(preds_lstm_results) #grab the column which has the highest value per each row
 
 lstm_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(lstm_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(lstm_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(lstm_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(lstm_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(lstm_Matrix,
          display_numbers = T,
@@ -465,7 +472,8 @@ pheatmap(lstm_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="LSTM NN")
+         main="LSTM NN",
+         angle_col=315)
 
 ################################################################################
 #     LSTM with Regularization defining, training, & evaluation
@@ -499,8 +507,8 @@ preds_lstm_final_results <- predict(model_lstm_final, cbind(x_test, y_test))
 preds.cl <- max.col(preds_lstm_final_results) #grab the column which has the highest value per each row
 
 lstm_final_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
-colnames(lstm_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
-rownames(lstm_final_Matrix) <- c('Ext. Neg.','Neg.','Neut.','Pos.','Ext. Pos.')#sentiment_levels
+colnames(lstm_final_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
+rownames(lstm_final_Matrix) <- c('Ext. Neg. (actual)','Neg. (actual)','Neut. (actual)','Pos. (actual)','Ext. Pos. (actual)')#sentiment_levels
 
 pheatmap(lstm_final_Matrix,
          display_numbers = T,
@@ -510,7 +518,8 @@ pheatmap(lstm_final_Matrix,
          cluster_cols=F,
          color = brewer.pal(9,"YlGn"),
          number_color='red',
-         main="Regularized LSTM NN")
+         main="Regularized LSTM NN",
+         angle_col=315)
 
 
 ################################################################################
