@@ -105,7 +105,7 @@ simple_fnn_results <- model %>% evaluate(x_test, y_test)
 simple_fnn_results
 
 preds_simple_fnn <- predict(model, x_test)
-preds.cl <- max.col(preds_fnn) #grab the column which has the highest value per each row
+preds.cl <- max.col(preds_simple_fnn) #grab the column which has the highest value per each row
 
 simple_fnn_Matrix <- matrix(table(max.col(y_test),preds.cl)[1:5,1:5],nrow=5)
 colnames(simple_fnn_Matrix) <- c('Ext. Neg. (estimate)','Neg. (estimate)','Neut. (estimate)','Pos. (estimate)','Ext. Pos. (estimate)')#sentiment_levels
