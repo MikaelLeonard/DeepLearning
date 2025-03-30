@@ -78,7 +78,7 @@ model <- keras_model_sequential() %>%
   layer_dense(units = 5, activation = "softmax")    
 
 # # of weights of the embedding layer = 10,000 x 8 = 80K
-# Output shape = (50,8), since 50 is the length of the word sequence
+# Output shape = (48,8), since 50 is the length of the word sequence
 
 model
 
@@ -86,7 +86,7 @@ model
 model %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 #train the model with the data , 80% train, 20% validation 
@@ -136,7 +136,7 @@ history_fnn <- model_fnn %>% fit(
 
 plot(history_fnn)
 
-fnn_results <- model %>% evaluate(x_test, y_test)
+fnn_results <- model_fnn %>% evaluate(x_test, y_test)
 fnn_results
 
 ################################################################################
@@ -384,7 +384,7 @@ model_lstm
 model_lstm %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_lstm <- model_lstm %>% fit(
@@ -429,7 +429,7 @@ model_lstm_final <- keras_model_sequential() %>%
 model_lstm_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_lstm_final <- model_lstm_final %>% fit(
@@ -493,7 +493,7 @@ lstm_results,
 lstm_final_results),Model_Types)) #regularization
 
 Overall_Metrics$loss <- as.numeric(Overall_Metrics$loss)
-Overall_Metrics$accuracy <- as.numeric(Overall_Metrics$categorical_accuracy)
+Overall_Metrics$categorical_accuracy <- as.numeric(Overall_Metrics$categorical_accuracy)
 
 Overall_Metrics
 
