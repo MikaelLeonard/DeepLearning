@@ -500,8 +500,8 @@ Overall_Metrics
 ggplot(Overall_Metrics, aes(loss,categorical_accuracy)) +
   geom_point() +
   geom_text_repel(aes(label = Model_Types)) +
-  xlim(0.4,1.8) +
-  ylim(0.3,0.9) +
+  xlim(0.5,1.6) +
+  ylim(0.55,0.775) +
   ggtitle("Overall Model Performances with Test Data")
 
 #Include a section of lessons learned, conclusions, limitations and potential next steps, reflecting on your analysis.
