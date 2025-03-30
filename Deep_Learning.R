@@ -384,7 +384,7 @@ model_lstm
 model_lstm %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_lstm <- model_lstm %>% fit(
@@ -429,7 +429,7 @@ model_lstm_final <- keras_model_sequential() %>%
 model_lstm_final %>% compile(
   optimizer = "rmsprop",
   loss = "categorical_crossentropy",
-  metrics = c("categorical_accuracy")
+  metrics = c("categorical_accuracy","Precision","Recall")
 )
 
 history_lstm_final <- model_lstm_final %>% fit(
@@ -493,7 +493,7 @@ lstm_results,
 lstm_final_results),Model_Types)) #regularization
 
 Overall_Metrics$loss <- as.numeric(Overall_Metrics$loss)
-Overall_Metrics$accuracy <- as.numeric(Overall_Metrics$categorical_accuracy)
+Overall_Metrics$categorical_accuracy <- as.numeric(Overall_Metrics$categorical_accuracy)
 
 Overall_Metrics
 
