@@ -554,6 +554,8 @@ lstm_final_results),Model_Types)) #regularization
 
 Overall_Metrics$loss <- as.numeric(Overall_Metrics$loss)
 Overall_Metrics$categorical_accuracy <- as.numeric(Overall_Metrics$categorical_accuracy)
+Overall_Metrics$precision <- as.numeric(Overall_Metrics$precision)
+Overall_Metrics$recall <- as.numeric(Overall_Metrics$recall)
 
 Overall_Metrics
 
@@ -562,9 +564,18 @@ ggplot(Overall_Metrics, aes(loss,categorical_accuracy, colour=Model_Types)) +
   geom_text_repel(aes(label = Model_Types)) +
   xlim(0.5,1.6) +
   ylim(0.55,0.775) +
-  ggtitle("Overall Model Performances with Test Data") +
+  ggtitle("Model Loss and Categorical Accuracy with Test Data") +
   xlab("Loss") +
   ylab("Categorical Accuracy")+ theme(legend.position="none")
+
+ggplot(Overall_Metrics, aes(recall, precision, colour=Model_Types)) +
+  geom_point() +
+  geom_text_repel(aes(label = Model_Types)) +
+  xlim(0.5,0.75) +
+  ylim(0.575,0.8) +
+  ggtitle("Model Generalized Precision and Recall with Test Data") +
+  xlab("Recall") +
+  ylab("Precision")+ theme(legend.position="none")
 
 #Include a section of lessons learned, conclusions, limitations and potential next steps, reflecting on your analysis.
 
