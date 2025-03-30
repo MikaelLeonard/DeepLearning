@@ -505,3 +505,604 @@ ggplot(Overall_Metrics, aes(loss,categorical_accuracy)) +
   ggtitle("Overall Model Performances with Test Data")
 
 #Include a section of lessons learned, conclusions, limitations and potential next steps, reflecting on your analysis.
+
+
+################################################################################
+#                                APPENDIX
+################################################################################
+
+################################################################################
+#     Same Models as Above - Looking at Per-Class Precision
+################################################################################
+
+################################# FFNN #########################################
+
+# FFNN Model with Per-Class Precision Only
+model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%   
+  layer_dense(units = 64, activation = "relu")  %>%   
+  layer_dense(units = 5, activation = "softmax")
+
+model %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = as.integer(0), name = "precision_extremely_negative"),
+    metric_precision(class_id = as.integer(1), name = "precision_negative"),
+    metric_precision(class_id = as.integer(2), name = "precision_neutral"),
+    metric_precision(class_id = as.integer(3), name = "precision_positive"),
+    metric_precision(class_id = as.integer(4), name = "precision_extremely_positive")
+  )
+)
+
+history <- model %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history)
+simple_fnn_results <- model %>% evaluate(x_test, y_test)
+simple_fnn_results
+
+# FFNN with Regularization + Per-Class Precision Only
+model_fnn <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_fnn %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = as.integer(0), name = "precision_extremely_negative"),
+    metric_precision(class_id = as.integer(1), name = "precision_negative"),
+    metric_precision(class_id = as.integer(2), name = "precision_neutral"),
+    metric_precision(class_id = as.integer(3), name = "precision_positive"),
+    metric_precision(class_id = as.integer(4), name = "precision_extremely_positive")
+  )
+)
+
+history_fnn <- model_fnn %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_fnn)
+fnn_results <- model_fnn %>% evaluate(x_test, y_test)
+fnn_results
+
+# Final FFNN with Regularization + Per-Class Precision Only
+model_fnn_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_fnn_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = as.integer(0), name = "precision_extremely_negative"),
+    metric_precision(class_id = as.integer(1), name = "precision_negative"),
+    metric_precision(class_id = as.integer(2), name = "precision_neutral"),
+    metric_precision(class_id = as.integer(3), name = "precision_positive"),
+    metric_precision(class_id = as.integer(4), name = "precision_extremely_positive")
+  )
+)
+
+history_fnn_final <- model_fnn_final %>% fit(
+  x_train, y_train,
+  epochs = 8,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_fnn_final)
+final_fnn_results <- model_fnn_final %>% evaluate(x_test, y_test)
+final_fnn_results
+
+################################# RNN ##########################################
+
+# RNN defining, training, & evaluation (Per-Class Precision)
+model_rnn <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = 0L, name = "precision_extremely_negative"),
+    metric_precision(class_id = 1L, name = "precision_negative"),
+    metric_precision(class_id = 2L, name = "precision_neutral"),
+    metric_precision(class_id = 3L, name = "precision_positive"),
+    metric_precision(class_id = 4L, name = "precision_extremely_positive")
+  )
+)
+
+history_rnn <- model_rnn %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn)
+rnn_results <- model_rnn %>% evaluate(x_test, y_test)
+rnn_results
+
+# Fewer Epoch RNN (Per-Class Precision)
+model_rnn_Cutoff <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_Cutoff %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = 0L, name = "precision_extremely_negative"),
+    metric_precision(class_id = 1L, name = "precision_negative"),
+    metric_precision(class_id = 2L, name = "precision_neutral"),
+    metric_precision(class_id = 3L, name = "precision_positive"),
+    metric_precision(class_id = 4L, name = "precision_extremely_positive")
+  )
+)
+
+history_rnn_cutoff <- model_rnn_Cutoff %>% fit(
+  x_train, y_train,
+  epochs = 7,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn_cutoff)
+rnn_cutoff_results <- model_rnn_Cutoff %>% evaluate(x_test, y_test)
+rnn_cutoff_results
+
+# Complex RNN (2-layer) (Per-Class Precision)
+model_rnn_2 <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32, return_sequences = TRUE) %>%
+  layer_simple_rnn(units = 16) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_2 %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = 0L, name = "precision_extremely_negative"),
+    metric_precision(class_id = 1L, name = "precision_negative"),
+    metric_precision(class_id = 2L, name = "precision_neutral"),
+    metric_precision(class_id = 3L, name = "precision_positive"),
+    metric_precision(class_id = 4L, name = "precision_extremely_positive")
+  )
+)
+
+history_rnn_2 <- model_rnn_2 %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn_2)
+rnn_results_2 <- model_rnn_2 %>% evaluate(x_test, y_test)
+rnn_results_2
+
+# Complex RNN with Dropout (Per-Class Precision)
+model_rnn_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32, return_sequences = TRUE, 
+                   dropout = 0.1, recurrent_dropout = 0.1) %>%
+  layer_simple_rnn(units = 16, 
+                   dropout = 0.1, recurrent_dropout = 0.1) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = 0L, name = "precision_extremely_negative"),
+    metric_precision(class_id = 1L, name = "precision_negative"),
+    metric_precision(class_id = 2L, name = "precision_neutral"),
+    metric_precision(class_id = 3L, name = "precision_positive"),
+    metric_precision(class_id = 4L, name = "precision_extremely_positive")
+  )
+)
+
+history_rnn_final <- model_rnn_final %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn_final)
+rnn_results_final <- model_rnn_final %>% evaluate(x_test, y_test)
+rnn_results_final
+
+################################# LSTM #########################################
+
+# LSTM defining, training, & evaluation (Per-Class Precision)
+model_lstm <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_lstm(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_lstm %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = 0L, name = "precision_extremely_negative"),
+    metric_precision(class_id = 1L, name = "precision_negative"),
+    metric_precision(class_id = 2L, name = "precision_neutral"),
+    metric_precision(class_id = 3L, name = "precision_positive"),
+    metric_precision(class_id = 4L, name = "precision_extremely_positive")
+  )
+)
+
+history_lstm <- model_lstm %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_lstm)
+lstm_results <- model_lstm %>% evaluate(x_test, y_test)
+lstm_results
+
+# LSTM with Regularization (Per-Class Precision)
+model_lstm_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_lstm(units = 16, dropout = 0.2, recurrent_dropout = 0.2) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_lstm_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_precision(class_id = 0L, name = "precision_extremely_negative"),
+    metric_precision(class_id = 1L, name = "precision_negative"),
+    metric_precision(class_id = 2L, name = "precision_neutral"),
+    metric_precision(class_id = 3L, name = "precision_positive"),
+    metric_precision(class_id = 4L, name = "precision_extremely_positive")
+  )
+)
+
+history_lstm_final <- model_lstm_final %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_lstm_final)
+lstm_final_results <- model_lstm_final %>% evaluate(x_test, y_test)
+lstm_final_results
+
+################################################################################
+#     Same Models as Above - Looking at Per-Class Recall
+################################################################################
+
+################################# FFNN #########################################
+
+# FFNN Model with Per-Class Recall Only
+model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%   
+  layer_dense(units = 64, activation = "relu")  %>%   
+  layer_dense(units = 5, activation = "softmax")
+
+model %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = as.integer(0), name = "recall_extremely_negative"),
+    metric_recall(class_id = as.integer(1), name = "recall_negative"),
+    metric_recall(class_id = as.integer(2), name = "recall_neutral"),
+    metric_recall(class_id = as.integer(3), name = "recall_positive"),
+    metric_recall(class_id = as.integer(4), name = "recall_extremely_positive")
+  )
+)
+
+history <- model %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history)
+simple_fnn_results <- model %>% evaluate(x_test, y_test)
+simple_fnn_results
+
+# FFNN with Regularization + Per-Class Recall Only
+model_fnn <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_fnn %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = as.integer(0), name = "recall_extremely_negative"),
+    metric_recall(class_id = as.integer(1), name = "recall_negative"),
+    metric_recall(class_id = as.integer(2), name = "recall_neutral"),
+    metric_recall(class_id = as.integer(3), name = "recall_positive"),
+    metric_recall(class_id = as.integer(4), name = "recall_extremely_positive")
+  )
+)
+
+history_fnn <- model_fnn %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_fnn)
+fnn_results <- model_fnn %>% evaluate(x_test, y_test)
+fnn_results
+
+# Final FFNN with Regularization + Per-Class Recall Only
+model_fnn_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8, input_length = maxlen) %>%
+  layer_flatten() %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_fnn_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = as.integer(0), name = "recall_extremely_negative"),
+    metric_recall(class_id = as.integer(1), name = "recall_negative"),
+    metric_recall(class_id = as.integer(2), name = "recall_neutral"),
+    metric_recall(class_id = as.integer(3), name = "recall_positive"),
+    metric_recall(class_id = as.integer(4), name = "recall_extremely_positive")
+  )
+)
+
+history_fnn_final <- model_fnn_final %>% fit(
+  x_train, y_train,
+  epochs = 8,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_fnn_final)
+final_fnn_results <- model_fnn_final %>% evaluate(x_test, y_test)
+final_fnn_results
+
+################################# RNN ##########################################
+
+# RNN defining, training, & evaluation (Per-Class Recall)
+model_rnn <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = 0L, name = "recall_extremely_negative"),
+    metric_recall(class_id = 1L, name = "recall_negative"),
+    metric_recall(class_id = 2L, name = "recall_neutral"),
+    metric_recall(class_id = 3L, name = "recall_positive"),
+    metric_recall(class_id = 4L, name = "recall_extremely_positive")
+  )
+)
+
+history_rnn <- model_rnn %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn)
+rnn_results <- model_rnn %>% evaluate(x_test, y_test)
+rnn_results
+
+# Fewer Epoch RNN (Per-Class Recall)
+model_rnn_Cutoff <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_Cutoff %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = 0L, name = "recall_extremely_negative"),
+    metric_recall(class_id = 1L, name = "recall_negative"),
+    metric_recall(class_id = 2L, name = "recall_neutral"),
+    metric_recall(class_id = 3L, name = "recall_positive"),
+    metric_recall(class_id = 4L, name = "recall_extremely_positive")
+  )
+)
+
+history_rnn_cutoff <- model_rnn_Cutoff %>% fit(
+  x_train, y_train,
+  epochs = 7,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn_cutoff)
+rnn_cutoff_results <- model_rnn_Cutoff %>% evaluate(x_test, y_test)
+rnn_cutoff_results
+
+# Complex RNN (2-layer) (Per-Class Recall)
+model_rnn_2 <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32, return_sequences = TRUE) %>%
+  layer_simple_rnn(units = 16) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_2 %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = 0L, name = "recall_extremely_negative"),
+    metric_recall(class_id = 1L, name = "recall_negative"),
+    metric_recall(class_id = 2L, name = "recall_neutral"),
+    metric_recall(class_id = 3L, name = "recall_positive"),
+    metric_recall(class_id = 4L, name = "recall_extremely_positive")
+  )
+)
+
+history_rnn_2 <- model_rnn_2 %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn_2)
+rnn_results_2 <- model_rnn_2 %>% evaluate(x_test, y_test)
+rnn_results_2
+
+# Complex RNN with Dropout (Per-Class Recall)
+model_rnn_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_simple_rnn(units = 32, return_sequences = TRUE, 
+                   dropout = 0.1, recurrent_dropout = 0.1) %>%
+  layer_simple_rnn(units = 16, 
+                   dropout = 0.1, recurrent_dropout = 0.1) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_rnn_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = 0L, name = "recall_extremely_negative"),
+    metric_recall(class_id = 1L, name = "recall_negative"),
+    metric_recall(class_id = 2L, name = "recall_neutral"),
+    metric_recall(class_id = 3L, name = "recall_positive"),
+    metric_recall(class_id = 4L, name = "recall_extremely_positive")
+  )
+)
+
+history_rnn_final <- model_rnn_final %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_rnn_final)
+rnn_results_final <- model_rnn_final %>% evaluate(x_test, y_test)
+rnn_results_final
+
+################################# LSTM #########################################
+
+# LSTM defining, training, & evaluation (Per-Class Recall)
+model_lstm <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_lstm(units = 32) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_lstm %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = 0L, name = "recall_extremely_negative"),
+    metric_recall(class_id = 1L, name = "recall_negative"),
+    metric_recall(class_id = 2L, name = "recall_neutral"),
+    metric_recall(class_id = 3L, name = "recall_positive"),
+    metric_recall(class_id = 4L, name = "recall_extremely_positive")
+  )
+)
+
+history_lstm <- model_lstm %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_lstm)
+lstm_results <- model_lstm %>% evaluate(x_test, y_test)
+lstm_results
+
+# LSTM with Regularization (Per-Class Recall)
+model_lstm_final <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_words, output_dim = 8) %>%
+  layer_lstm(units = 16, dropout = 0.2, recurrent_dropout = 0.2) %>%
+  layer_dense(units = 5, activation = "softmax")
+
+model_lstm_final %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = list(
+    metric_categorical_accuracy(),
+    metric_recall(class_id = 0L, name = "recall_extremely_negative"),
+    metric_recall(class_id = 1L, name = "recall_negative"),
+    metric_recall(class_id = 2L, name = "recall_neutral"),
+    metric_recall(class_id = 3L, name = "recall_positive"),
+    metric_recall(class_id = 4L, name = "recall_extremely_positive")
+  )
+)
+
+history_lstm_final <- model_lstm_final %>% fit(
+  x_train, y_train,
+  epochs = 20,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+plot(history_lstm_final)
+lstm_final_results <- model_lstm_final %>% evaluate(x_test, y_test)
+lstm_final_results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
